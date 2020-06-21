@@ -41,40 +41,56 @@ public class Base {
 	@Parameters({"browser"})
 	public static WebDriver startDriver(@Optional("chrome") String browser) {
 
-		if(Constants.broswerName.equalsIgnoreCase(Constants.chrome)) {
-			System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+Constants.chromePath);
-			driver = new ChromeDriver();
+		if(Constants.isParallelSelected()) {
+
+			if(browser.equalsIgnoreCase(Constants.chrome)) {
+				System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+Constants.chromePath);
+				driver = new ChromeDriver();
+			}
+			else if (browser.equalsIgnoreCase(Constants.firefox)) {
+				System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir")+Constants.firefoxPath);
+				driver = new FirefoxDriver();
+			}
+			else if (browser.equalsIgnoreCase(Constants.ie)) {
+				System.setProperty("webdriver.ie.driver", System.getProperty("user.dir")+Constants.iePath);
+				driver = new InternetExplorerDriver();
+			}
 		}
-		else if (Constants.broswerName.equalsIgnoreCase(Constants.firefox)) {
-			System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir")+Constants.firefoxPath);
-			driver = new FirefoxDriver();
+		else {
+			if(Constants.broswerName.equalsIgnoreCase(Constants.chrome)) {
+				System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+Constants.chromePath);
+				driver = new ChromeDriver();
+			}
+			else if (Constants.broswerName.equalsIgnoreCase(Constants.firefox)) {
+				System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir")+Constants.firefoxPath);
+				driver = new FirefoxDriver();
+			}
+			else if (Constants.broswerName.equalsIgnoreCase(Constants.ie)) {
+				System.setProperty("webdriver.ie.driver", System.getProperty("user.dir")+Constants.iePath);
+				driver = new InternetExplorerDriver();
+			}
 		}
-		else if (Constants.broswerName.equalsIgnoreCase(Constants.ie)) {
-			System.setProperty("webdriver.ie.driver", System.getProperty("user.dir")+Constants.iePath);
-			driver = new InternetExplorerDriver();
-		}
-		
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(120, TimeUnit.SECONDS);
 		return driver;
 	}
 
-@BeforeTest
-public void report() {
-	htmlReporter = new ExtentHtmlReporter(new File(System.getProperty("user.dir") + Constants.reportPath));
-	extent = new ExtentReports();
-	extent.attachReporter(htmlReporter);
-}
-@BeforeMethod
-public void method(Method method) {
-	parentTest = extent.createTest(method.getName());
-}
-@AfterClass
-public void stopDriver() {
-	driver.quit();
-	extent.flush();
-}
-//take Screenshot when test case fail and add it to Screenshot folder
+	@BeforeTest
+	public void report() {
+		htmlReporter = new ExtentHtmlReporter(new File(System.getProperty("user.dir") + Constants.reportPath));
+		extent = new ExtentReports();
+		extent.attachReporter(htmlReporter);
+	}
+	@BeforeMethod
+	public void method(Method method) {
+		parentTest = extent.createTest(method.getName());
+	}
+	@AfterClass
+	public void stopDriver() {
+		driver.quit();
+		extent.flush();
+	}
+	//take Screenshot when test case fail and add it to Screenshot folder
 	@AfterMethod
 	public void screenshotOnFailure(ITestResult result) {
 		if(result.getStatus() == ITestResult.FAILURE) {

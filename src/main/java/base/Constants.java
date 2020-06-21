@@ -14,6 +14,16 @@ public class Constants {
 	public static String broswerName = LoadProperties.config.getProperty("broswer");
 	public static String url = LoadProperties.config.getProperty("url");
 	public static String searchKeyword = LoadProperties.config.getProperty("searchKeyword");
+	public static String parallel = LoadProperties.config.getProperty("parallel");
+	public static boolean isParallelSelected() {
+		try {
+			String parallel = Constants.parallel;
+			return Boolean.parseBoolean(parallel);
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
 	
 	//Home Page
 	public static String textBarlocator = LoadProperties.objectRepo.getProperty("textBar_name");
