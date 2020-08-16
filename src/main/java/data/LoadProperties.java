@@ -14,8 +14,12 @@ public class LoadProperties {
 	// Load objectRepo Data
 	
 	public static Properties objectRepo = 
-			loadProperties(System.getProperty("user.dir")+"\\src\\main\\java\\config\\object_repository.properties");
+			loadProperties(System.getProperty("user.dir")+"\\src\\main\\java\\config\\objectRepo.properties");
 	
+	// load test Data
+	public static Properties testData = 
+			loadProperties(System.getProperty("user.dir")+"\\src\\main\\java\\data\\testData.properties");
+
 	public static Properties loadProperties(String path) {
 		
 		Properties prop = new Properties();

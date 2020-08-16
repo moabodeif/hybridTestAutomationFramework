@@ -7,7 +7,7 @@ import base.Constants;
 import reuse.BusinessFunctions;
 
 /**
- * It's used to Run Test Cases
+ * used to Run Test Cases
  * 
  *
  */
@@ -20,7 +20,8 @@ public class TC1 extends Base{
 		BusinessFunctions fns = new BusinessFunctions();
 		fns.gotoApplication();
 		fns.homePageActions();
-		fns.secondPage();
-		fns.thirdPage();
+		fns.signUpPageActions();
+		fns.myAccountPageActions();
+		fns.loginPageActions();
 	}
 }

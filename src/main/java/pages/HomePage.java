@@ -12,7 +12,6 @@ import base.Constants;
 
 public class HomePage {
 	
-	public static By textBar = By.name(Constants.textBarlocator);
-	public static By searchSuggestions = By.xpath(Constants.searchSuggestionslocator);
-	public static By pageNumber2 = By.xpath(Constants.pageNumber2locator);
+	public static By myAccountButton = By.xpath(Constants.myAccountButtonlocator);
+	public static By signupButton = By.xpath(Constants.signupButtonlocator);
 }

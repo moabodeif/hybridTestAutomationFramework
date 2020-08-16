@@ -1,20 +1,29 @@
 package frameworkEngine;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.support.ui.Select;
 
 import com.aventstack.extentreports.MediaEntityBuilder;
 
 import base.Base;
 
 /**
- * It's used to Drive the Framework
+ * used to Drive the Framework
  * 
  *
  */
@@ -52,6 +61,7 @@ public class Engine {
 
 	public void click(By locator, String eleName) throws Exception{
 		try {
+			driver.manage().timeouts().implicitlyWait(120, TimeUnit.SECONDS);
 			driver.findElement(locator).click();
 			Base.childTest.pass("Successfully performed click on :" +eleName);
 
@@ -85,7 +95,78 @@ public class Engine {
 	}
 
 	/**
-	 * it will return true if vsibleText From Dropdown Menu
+	 * used to Get Text from Text box and Text area
+	 * @param locator  
+	 * @param testData 
+	 * @throws Exception
+	 */
+
+	public String getText(By locator, String testData) throws Exception{
+		try {
+			testData = driver.findElement(locator).getText();
+			Base.childTest.pass("Text is  :" +testData);
+			return testData;
+
+		} catch (Exception e) {
+			Base.childTest.fail("Unable to return Text" ,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			return null;
+		}
+	}
+	
+	/**
+	 * Perform Mouse hover on given element
+	 * @param Locator
+	 * @param eleName  
+	 * @throws Exception
+	 */
+
+	public void mouseHover(By Locator, String eleName) throws Exception{
+		try {
+			Actions act = new Actions(driver);
+			WebElement ele = driver.findElement(Locator);
+			act.moveToElement(ele).build().perform();
+			Thread.sleep(2000);
+			Base.childTest.pass("Successfully mouse hover on : "+eleName);
+
+		} catch (Exception e) {
+			Base.childTest.fail("Unable to mouse hover on : "+eleName,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			throw e;
+		}
+	}
+	
+	/**
+	 * Perform Mouse hover and click on submenu
+	 * @param menuLocator
+	 * @param subMenuLocator  
+	 * @param menu
+	 * @param subMenu 
+	 * @throws Exception
+	 */
+
+	public void mouseHoverAndClickSubMenu(By menuLocator, By subMenuLocator, String menu, String subMenu) throws Exception{
+		try {
+			Actions action = new Actions(driver);
+			WebElement element = driver.findElement(menuLocator);
+			action.moveToElement(element).build().perform();
+			Thread.sleep(2000);
+			driver.findElement(subMenuLocator).click();
+			Base.childTest.pass("Successfully mouse hover on Menu: "+menu+" and clicked on subMenu: "+subMenu);
+
+		} catch (Exception e) {
+			System.out.println("Element is not present");
+			Base.childTest.fail("Unable to mouse hover on Menu: "+menu+" and Unable to click on subMenu: "+subMenu ,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			throw e;
+		}
+	}
+	
+	/**
+	 * return true if vsibleText From Dropdown Menu
 	 * @param locator  - get it from Object Repository
 	 * @param vsibleText  
 	 * @throws Exception
@@ -111,6 +192,96 @@ public class Engine {
 		}
 	}
 
+	/**
+	 * Select By Value From Dropdown Menu
+	 * @param locator  - get it from Object Repository
+	 * @param Value  
+	 * @throws Exception
+	 */
+
+	public void selectByValue(By locator, String Value) throws Exception{
+		try {
+			WebElement element = driver.findElement(locator);
+			Select select = new Select(element);
+			select.selectByValue(Value);
+			Base.childTest.pass("Selected :" +Value+ " from Suggestions");
+
+		} catch (Exception e) {
+			Base.childTest.pass("Unable to Selected :" +Value+ " from Suggestions" ,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			throw e;
+		}
+	}
+	/**
+	 * Scroll By
+	 * @param locator  - get it from Object Repository
+	 * @param Value  
+	 * @throws Exception
+	 */
+
+	public void scrollBy(String Value) throws Exception{
+		try {
+			JavascriptExecutor js = (JavascriptExecutor) driver ;
+			js.executeScript(Value);
+			Base.childTest.pass("Scrolled " +Value);
+
+		} catch (Exception e) {
+			Base.childTest.pass("Unable to Scroll : " +Value,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			throw e;
+		}
+	}
+	/**
+	 * HTTP Interceptor
+	 * @throws Exception
+	 */
+	public void httpInterceptor() throws Exception{
+		int status = -1;
+		try {
+	        String currentURL = driver.getCurrentUrl();
+	        LogEntries logs = driver.manage().logs().get("performance");
+	        for (Iterator<LogEntry> it = logs.iterator(); it.hasNext();)
+	        {
+	            LogEntry entry = it.next();
+	            try
+	            {
+	                JSONObject json = new JSONObject(entry.getMessage());
+	                System.out.println(json.toString());
+	                JSONObject message = json.getJSONObject("message");
+	                String method = message.getString("method");
+	                if (method != null
+	                        && "Network.responseReceived".equals(method))
+	                {
+	                    JSONObject params = message.getJSONObject("params");
+	                    JSONObject response = params.getJSONObject("response");
+	                    String messageUrl = response.getString("url");
+	                    if (currentURL.equals(messageUrl))
+	                    {
+	                        status = response.getInt("status");
+
+	                        System.out.println(
+	                                "---------- bingo !!!!!!!!!!!!!! returned response for "
+	                                        + messageUrl + ": " + status);
+	                        System.out.println(
+	                                "---------- bingo !!!!!!!!!!!!!! headers: "
+	                                        + response.get("headers"));
+	                    }
+	                }
+	            } catch (JSONException e)
+	            {
+	                e.printStackTrace();
+	            }
+	        }
+			Base.childTest.pass("status code: " +status);
+		} catch (Exception e) {
+			Base.childTest.pass("Unable to response : " +status,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			throw e;
+		}
+	}
 	/**
 	 * used to Assert Expected Value Equal Actual Value or not
 	 * @param locator  
@@ -140,7 +311,7 @@ public class Engine {
 	 * it will return true if Element is the present otherwise false
 	 * @param locator  - get it from Object Repository
 	 * @param eleName   - Name of the Element
-	 * @throws Exception
+	 * @throws IOException
 	 */
 
 	public boolean isElePresent(By locator, String eleName) throws IOException{

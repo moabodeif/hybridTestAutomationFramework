@@ -2,12 +2,20 @@ package base;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -24,7 +32,7 @@ import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import utilities.Helper;
 
 /**
- * It's used to lunch the browser, reports and external files
+ * used to lunch the browser, reports and external files
  * 
  * @author Mohamed Gamal Abou-Daif
  *
@@ -40,8 +48,21 @@ public class Base {
 	@BeforeClass
 	@Parameters({"browser"})
 	public static WebDriver startDriver(@Optional("chrome") String browser) {
-
-		if(Constants.isParallelSelected()) {
+		
+		
+		if (Constants.isGridSelected()) {
+			// On Selenium grid
+			//ThreadLocal<RemoteWebDriver> driver = null;
+			//driver = new ThreadLocal<>();
+			URL hubURL = Constants.gridHubURL();
+			DesiredCapabilities caps = new DesiredCapabilities();
+			caps.setCapability(CapabilityType.BROWSER_NAME, browser);
+			driver = new RemoteWebDriver(hubURL, caps);
+			//driver.set(new RemoteWebDriver(hubURL, caps));
+			//driver.get().navigate().to(Constants.url);
+			
+		}
+		else if(Constants.isParallelSelected()) {
 
 			if(browser.equalsIgnoreCase(Constants.chrome)) {
 				System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+Constants.chromePath);
@@ -56,20 +77,34 @@ public class Base {
 				driver = new InternetExplorerDriver();
 			}
 		}
+
 		else {
-			if(Constants.broswerName.equalsIgnoreCase(Constants.chrome)) {
+			switch (Constants.broswerName) {
+			case "chrome":
 				System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+Constants.chromePath);
-				driver = new ChromeDriver();
-			}
-			else if (Constants.broswerName.equalsIgnoreCase(Constants.firefox)) {
+				ChromeOptions options = new ChromeOptions();
+				options.addArguments("start-maximized");
+				DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+				capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+				LoggingPreferences logPrefs = new LoggingPreferences();
+				logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
+	            options.setCapability("goog:loggingPrefs", logPrefs);
+	            driver = new ChromeDriver(options);
+				break;
+			case "firefox":
 				System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir")+Constants.firefoxPath);
 				driver = new FirefoxDriver();
-			}
-			else if (Constants.broswerName.equalsIgnoreCase(Constants.ie)) {
+				break;
+			case "internet explorer":
 				System.setProperty("webdriver.ie.driver", System.getProperty("user.dir")+Constants.iePath);
 				driver = new InternetExplorerDriver();
+				break;
+			default:
+				throw new RuntimeException("Invalid browser name: " + Constants.broswerName);
 			}
 		}
+		
+		
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(120, TimeUnit.SECONDS);
 		return driver;
