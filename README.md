@@ -2,7 +2,7 @@
 
 # Type of Framework:
 
-- : I’m using Hybrid Framework by using (Data Driven and Page Object Model design pattern with Page Factory).
+- Hybrid Framework by using (Data Driven and Page Object Model design pattern with Page Factory).
 
 
 # Tech Stach:
