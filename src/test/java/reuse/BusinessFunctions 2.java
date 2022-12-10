@@ -54,7 +54,7 @@ public class BusinessFunctions {
 		aDriver.click(SignUpPage.signup, Constants.signUp);
 	}
 	public void myAccountPageActions() throws Exception{
-//		aDriver.httpInterceptor();
+		aDriver.httpInterceptor();
 		aDriver.isElePresent(HomePage.myAccountButton, Constants.myAccount);
 		aDriver.click(HomePage.myAccountButton, Constants.myAccount);
 		aDriver.click(MyAccountPage.logout, Constants.logout);

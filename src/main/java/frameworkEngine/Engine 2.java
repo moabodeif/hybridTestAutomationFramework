@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.AbstractQueuedLongSynchronizer.ConditionObject;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -232,55 +233,55 @@ public class Engine {
 			throw e;
 		}
 	}
-//	/**
-//	 * HTTP Interceptor
-//	 * @throws Exception
-//	 */
-//	public void httpInterceptor() throws Exception{
-//		int status = -1;
-//		try {
-//	        String currentURL = driver.getCurrentUrl();
-//	        LogEntries logs = driver.manage().logs().get("performance");
-//	        for (Iterator<LogEntry> it = logs.iterator(); it.hasNext();)
-//	        {
-//	            LogEntry entry = it.next();
-//	            try
-//	            {
-//	                ConditionObject json = new JSONObject(entry.getMessage());
-//	                System.out.println(json.toString());
-//	                JSONObject message = json.getJSONObject("message");
-//	                String method = message.getString("method");
-//	                if (method != null
-//	                        && "Network.responseReceived".equals(method))
-//	                {
-//	                    JSONObject params = message.getJSONObject("params");
-//	                    JSONObject response = params.getJSONObject("response");
-//	                    String messageUrl = response.getString("url");
-//	                    if (currentURL.equals(messageUrl))
-//	                    {
-//	                        status = response.getInt("status");
-//
-//	                        System.out.println(
-//	                                "---------- bingo !!!!!!!!!!!!!! returned response for "
-//	                                        + messageUrl + ": " + status);
-//	                        System.out.println(
-//	                                "---------- bingo !!!!!!!!!!!!!! headers: "
-//	                                        + response.get("headers"));
-//	                    }
-//	                }
-//	            } catch (JSONException e)
-//	            {
-//	                e.printStackTrace();
-//	            }
-//	        }
-//			Base.childTest.pass("status code: " +status);
-//		} catch (Exception e) {
-//			Base.childTest.pass("Unable to response : " +status,
-//					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
-//			Base.childTest.info(e);
-//			throw e;
-//		}
-//	}
+	/**
+	 * HTTP Interceptor
+	 * @throws Exception
+	 */
+	public void httpInterceptor() throws Exception{
+		int status = -1;
+		try {
+	        String currentURL = driver.getCurrentUrl();
+	        LogEntries logs = driver.manage().logs().get("performance");
+	        for (Iterator<LogEntry> it = logs.iterator(); it.hasNext();)
+	        {
+	            LogEntry entry = it.next();
+	            try
+	            {
+	                JSONObject json = new JSONObject(entry.getMessage());
+	                System.out.println(json.toString());
+	                JSONObject message = json.getJSONObject("message");
+	                String method = message.getString("method");
+	                if (method != null
+	                        && "Network.responseReceived".equals(method))
+	                {
+	                    JSONObject params = message.getJSONObject("params");
+	                    JSONObject response = params.getJSONObject("response");
+	                    String messageUrl = response.getString("url");
+	                    if (currentURL.equals(messageUrl))
+	                    {
+	                        status = response.getInt("status");
+
+	                        System.out.println(
+	                                "---------- bingo !!!!!!!!!!!!!! returned response for "
+	                                        + messageUrl + ": " + status);
+	                        System.out.println(
+	                                "---------- bingo !!!!!!!!!!!!!! headers: "
+	                                        + response.get("headers"));
+	                    }
+	                }
+	            } catch (JSONException e)
+	            {
+	                e.printStackTrace();
+	            }
+	        }
+			Base.childTest.pass("status code: " +status);
+		} catch (Exception e) {
+			Base.childTest.pass("Unable to response : " +status,
+					MediaEntityBuilder.createScreenCaptureFromBase64String(screenShot()).build());
+			Base.childTest.info(e);
+			throw e;
+		}
+	}
 	/**
 	 * used to Assert Expected Value Equal Actual Value or not
 	 * @param locator  
